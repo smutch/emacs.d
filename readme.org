@@ -1,5 +1,5 @@
 * Emacs Org Configuration
-2015-05-28
+2015-05-29
 * Description
 This file is parsed by [[./init.el][init.el]] which then evaluates all =emacs-lisp= code blocks during startup.
 
@@ -54,6 +54,16 @@ brew install macvim --override-system-vim
 brew linkapps
 #+END_SRC
 
+** Arch Linux
+*** Git
+#+BEGIN_SRC sh
+pacman -S git
+#+END_SRC
+*** Vim
+#+BEGIN_SRC sh
+pacman -S gvim-python3
+#+END_SRC
+
 * Installing Emacs
 ** Mac OS X
 *** 24.5 (Stable)
@@ -68,15 +78,11 @@ brew update
 brew install emacs --devel --with-cocoa --with-gnutls
 #+END_SRC
 
-** Linux
-*** 24.5 (Stable)
+** Arch Linux
+Emacs is generally kept up-to-date in the official repositories.
+*** 24.5
 #+BEGIN_SRC sh
-
-#+END_SRC
-
-*** 24.n (Development)
-#+BEGIN_SRC sh
-
+pacman -S emacs
 #+END_SRC
 
 * Starting Emacs
@@ -510,7 +516,7 @@ autocompletion and error checking.
 
 #+BEGIN_SRC sh
 pip install jedi
-pip install flak8
+pip install flake8
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
