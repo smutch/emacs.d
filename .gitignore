@@ -22,3 +22,6 @@ games
 *_archive
 *.rel
 /auto/
+/projectile-bookmarks.eld
+/projectile.cache
+/savehist

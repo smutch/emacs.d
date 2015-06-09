@@ -337,7 +337,7 @@
              ;; Use Flycheck instead of Flymake
              (when (require 'flycheck nil t)
                (remove-hook 'elpy-modules 'elpy-module-flymake)
-               (remove-hook 'elpy-modules 'elpy-module-yasnippet)
+               ;; (remove-hook 'elpy-modules 'elpy-module-yasnippet)
                (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
                (add-hook 'elpy-mode-hook 'flycheck-mode))
              (elpy-enable)
@@ -354,6 +354,13 @@
              (setq magit-last-seen-setup-instructions "1.4.0")
              :config
              (bind-key "q" 'magit-mode-quit-window magit-status-mode-map))
+
+;; yasnippet
+(use-package yasnippet
+  :init
+  (setq yas-snippet-dirs (concat user-emacs-directory "snippets"))
+  :config
+  (yas-global-mode 1))
 
 ;; Git gutter
 (use-package git-gutter-fringe+)
