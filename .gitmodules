@@ -1,0 +1,3 @@
+[submodule "packages/evil-extra-operator"]
+	path = packages/evil-extra-operator
+	url = https://github.com/Dewdrops/evil-extra-operator.git
