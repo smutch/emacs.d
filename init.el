@@ -353,7 +353,13 @@
              :init
              (setq magit-last-seen-setup-instructions "1.4.0")
              :config
-             (bind-key "q" 'magit-quit-session magit-status-mode-map))
+             (bind-key "q" 'magit-mode-quit-window magit-status-mode-map))
+
+;; Git gutter
+(use-package git-gutter-fringe+)
+(use-package git-gutter+
+  :config
+  (global-git-gutter+-mode t))
 
 ;; Projectile
 (use-package projectile

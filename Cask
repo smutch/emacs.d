@@ -18,6 +18,7 @@
 (depends-on "f")
 (depends-on "flycheck")
 (depends-on "flyspell")
+(depends-on "git-gutter+")
 (depends-on "git-gutter-fringe+")
 (depends-on "guide-key")
 (depends-on "helm")
