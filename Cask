@@ -30,6 +30,8 @@
 (depends-on "monokai-theme")
 (depends-on "package-build")
 (depends-on "pallet")
+(depends-on "powerline")
+(depends-on "powerline-evil")
 (depends-on "projectile")
 (depends-on "rainbow-mode")
 (depends-on "smartparens")

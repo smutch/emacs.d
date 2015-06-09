@@ -22,13 +22,28 @@
 ; Essentials
 ; Some quick essentials.
 
-;; faces
-(load-theme 'monokai t)
-(custom-theme-set-faces 'monokai
-  `(evil-search-highlight-persist-highlight-face ((t :background "blue"))))
-
 ;; default font
 (set-frame-font "-*-Source Code Pro-normal-normal-normal-*-13-*-*-*-m-0-iso10646-1")
+
+;; dark theme
+(load-theme 'monokai t t)
+(load-theme 'solarized-light t t)
+(defun dark-theme (&optional leave-pl)
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (enable-theme 'monokai)
+  (if leave-pl () (powerline-reset)))
+
+;; light theme
+(defun light-theme (&optional leave-pl)
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (enable-theme 'solarized-light)
+  (if leave-pl () (powerline-reset)))
+
+;; faces
+(custom-theme-set-faces 'monokai
+  `(evil-search-highlight-persist-highlight-face ((t :background "blue"))))
 
 ; !! evil-mode !!
 (use-package evil
@@ -55,20 +70,39 @@
       :diminish ""
       :config (evil-snipe-mode 1))
 
+    ;; guide-key
+    (use-package guide-key
+      :diminish ""
+      :config
+      (progn (setq guide-key/guide-key-sequence '("C-x" "C-c" "SPC"))
+             (setq guide-key/recursive-key-sequence-flag t))
+      (guide-key-mode 1))
+
     (use-package evil-leader
       :init
       (global-evil-leader-mode)
       :config
       (progn
              (evil-leader/set-leader "<SPC>")
+             (define-prefix-command 'buffers)
+             (define-prefix-command 'files)
+             (define-prefix-command 'projects)
+             (define-prefix-command 'help)
+             (define-prefix-command 'git)
+             (define-prefix-command 'tags)
+             (define-prefix-command 'set)
              (evil-leader/set-key
+               "b"  'buffers
                "bs" 'helm-buffers-list
                "bb" 'evil-buffer
                "bd" 'evil-delete-buffer
 
+               "f"  'files
                "fs" 'save-buffer
                "fr" 'helm-recentf
+               "fd" 'helm-open-dired
 
+               "p"  'projects
                "pf" 'projectile-find-file
                "pa" 'projectile-ag
                "ps" 'projectile-switch-project
@@ -76,20 +110,24 @@
                "pr" 'projectile-replace
                "pw" 'ag-project-at-point
 
+               "h"  'help
                "hf" 'describe-function
                "hk" 'describe-key
                "hm" 'describe-minor-mode
                "hM" 'describe-mode
                "hb" 'describe-bindings
 
+               "g"  'git
                "gs" 'magit-status
                "gc" 'magit-commit
                "gl" 'magit-log
                "gd" 'magit-diff
                "ga" 'magit-stage-all
 
+               "t"  'tags
                "tt" 'helm-etags-select
 
+               "s"  'set
                "sf" 'menu-set-font
 
                ":"  'helm-M-x
@@ -169,7 +207,7 @@
 
 ;; No fascists.
 (setq initial-scratch-message nil)
-(setq initial-major-mode 'lisp-mode)
+(setq initial-major-mode 'emacs-lisp-mode)
 
 ;; No alarms.
 (setq ring-bell-function 'ignore)
@@ -328,6 +366,11 @@
 ;;              :init
 ;;              (add-hook 'python-mode-hook 'my/python-mode-hook))
 
+;; powerline
+(use-package powerline
+  :config
+  (powerline-default-theme))
+
 ; *** Elpy Mode
 ; If you don't want to configure anything yourself (or can't decide what you want), [[https://github.com/jorgenschaefer/elpy][Elpy]] combines many helpful packages for working with Python and sets everything up for you.
 (use-package elpy
@@ -422,16 +465,7 @@
 
                (setq-default ispell-program-name "/usr/local/bin/aspell")
                (setq-default ispell-list-command "list"))
-             :config ())
-
-;; guide-key
-(use-package guide-key
-  :diminish ""
-  :config
-  (progn (setq guide-key/guide-key-sequence '("C-x" "C-c"))
-         (setq guide-key/recursive-key-sequence-flag t))
-  (guide-key-mode 1))
-  
+             :config ()) 
 
 ; ** Flycheck
 ; [[https://github.com/flycheck/flycheck][Flycheck]] is a great modern syntax checker.
@@ -509,3 +543,6 @@
                              (load-theme 'solarized-light)))
 (add-hook 'LaTeX-mode-hook (lambda()
                              (key-chord-define evil-insert-state-map  "hj" 'LaTeX-insert-item)))
+
+;; finally select the theme (once everything has been loaded)
+(dark-theme)
