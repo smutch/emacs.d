@@ -604,5 +604,13 @@
 (setq explicit-shell-file-name "/bin/zsh")
 (push "/home/smutch/3rd_party/git/bin" tramp-remote-path)
 
+;; remote client
+(defun my/server-start-and-copy-to-g2 ()
+  (interactive)
+  (setq server-use-tcp t
+        server-port    4324)
+  (server-start)
+  (copy-file "~/.emacs.d/server/server" "/ssh:g2:~/.emacs.d/server/server" t))
+
 ;; finally select the theme (once everything has been loaded)
 (dark-theme)
