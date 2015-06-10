@@ -22,6 +22,14 @@
 ; Essentials
 ; Some quick essentials.
 
+;; paths
+(use-package exec-path-from-shell
+  :ensure
+  :config
+  (when (memq window-system '(mac ns))
+    (exec-path-from-shell-initialize))
+  )
+
 ;; default font
 (set-frame-font "-*-Source Code Pro-normal-normal-normal-*-13-*-*-*-m-0-iso10646-1")
 
@@ -90,7 +98,8 @@
              (define-prefix-command 'help)
              (define-prefix-command 'git)
              (define-prefix-command 'tags)
-             (define-prefix-command 'set)
+             (define-prefix-command 'settings)
+             (define-prefix-command 'errors)
              (evil-leader/set-key
                "b"  'buffers
                "bs" 'helm-buffers-list
@@ -101,6 +110,7 @@
                "fs" 'save-buffer
                "fr" 'helm-recentf
                "fd" 'helm-open-dired
+               "fo" 'helm-find-files
 
                "p"  'projects
                "pf" 'projectile-find-file
@@ -127,8 +137,14 @@
                "t"  'tags
                "tt" 'helm-etags-select
 
-               "s"  'set
+               "s"  'settings
                "sf" 'menu-set-font
+
+               "e"  'errors
+               "el" 'flycheck-list-errors
+               "en" 'flycheck-next-error
+               "ep" 'flycheck-previous-error
+               "ef" 'flycheck-first-error
 
                ":"  'helm-M-x
                ";"  'other-window)))
@@ -358,13 +374,40 @@
         ; (disable-theme 'base16-solarized-light-custom)
         ; (enable-theme 'base16-eighties-dark-custom)))))
 
-; python mode
-;; (defun my/python-mode-hook ()
-;;   (add-to-list 'company-backends 'company-jedi))
+;; python mode
+(add-hook 'python-mode-hook 'flycheck-mode)
+(add-hook 'python-mode-hook 'anaconda-mode)
+(add-hook 'python-mode-hook 'eldoc-mode)
+(add-hook 'python-mode-hook (lambda ()
+                              (evil-local-set-key 'normal "gD" 'anaconda-mode-goto-definitions)
+                              (evil-local-set-key 'normal "K" 'anaconda-mode-view-doc)))
+(use-package anaconda
+  :init
+  (use-package company-anaconda
+    :config
+    (add-to-list 'company-backends 'company-anaconda))
+  )
 
-;; (use-package company-jedi
-;;              :init
-;;              (add-hook 'python-mode-hook 'my/python-mode-hook))
+;; (use-package jedi
+;;   :init
+;;   (defun my/python-mode-hook ()
+;;     (add-to-list 'company-backends 'company-jedi))
+;;   (use-package company-jedi
+;;     :init
+;;     (add-hook 'python-mode-hook 'my/python-mode-hook))
+;;   :config
+;;   (progn ()
+;;          (setq jedi:tooltip-method nil)
+;;          ;; (setq jedi:complete-on-dot t) 
+;;          (add-hook 'python-mode-hook 'jedi:setup)
+;;          (add-hook 'python-mode-hook (progn () (bind-key "C-SPC" 'jedi:complete)))
+;;          (evil-define-key 'normal 'python-mode "gD" 'jedi:goto-definition)
+;;          (evil-define-key 'normal 'python-mode "K" 'jedi:show-doc)
+;;          (evil-leader/set-key-for-mode 'python-mode
+;;            "mp" 'run-python
+;;            "mr" 'python-shell-send-region
+;;            "mb" 'python-shell-send-buffer
+;;            "mf" 'python-shell-send-file)))
 
 ;; powerline
 (use-package powerline
@@ -373,20 +416,20 @@
 
 ; *** Elpy Mode
 ; If you don't want to configure anything yourself (or can't decide what you want), [[https://github.com/jorgenschaefer/elpy][Elpy]] combines many helpful packages for working with Python and sets everything up for you.
-(use-package elpy
-           :defer 2
-           :config
-           (progn
-             ;; Use Flycheck instead of Flymake
-             (when (require 'flycheck nil t)
-               (remove-hook 'elpy-modules 'elpy-module-flymake)
-               ;; (remove-hook 'elpy-modules 'elpy-module-yasnippet)
-               (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
-               (add-hook 'elpy-mode-hook 'flycheck-mode))
-             (elpy-enable)
-             ;; jedi is great
-             (setq elpy-rpc-backend "jedi")
-             (add-hook 'python-mode-hook 'elpy-mode)))
+;; (use-package elpy
+;;            :defer 2
+;;            :config
+;;            (progn
+;;              ;; Use Flycheck instead of Flymake
+;;              (when (require 'flycheck nil t)
+;;                (remove-hook 'elpy-modules 'elpy-module-flymake)
+;;                ;; (remove-hook 'elpy-modules 'elpy-module-yasnippet)
+;;                (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
+;;                (add-hook 'elpy-mode-hook 'flycheck-mode))
+;;              (elpy-enable)
+;;              ;; jedi is great
+;;              (setq elpy-rpc-backend "jedi")
+;;              (add-hook 'python-mode-hook 'elpy-mode)))
 
 ; ** Magit
 ; [[https://github.com/magit/magit][Magit]] is the ultimate =git= interface for Emacs.
@@ -428,7 +471,19 @@
 (use-package company
              :diminish ""
              :config
-             (global-company-mode 1))
+             (progn ()
+                    (global-company-mode '(not vhdl-mode))
+                    (defun my/company-show-doc-buffer ()
+                      "Temporarily show the documentation buffer for the selection."
+                      (interactive)
+                      (let* ((selected (nth company-selection company-candidates))
+                             (doc-buffer (or (company-call-backend 'doc-buffer selected)
+                                             (error "No documentation available"))))
+                        (with-current-buffer doc-buffer
+                          (goto-char (point-min)))
+                        (display-buffer doc-buffer t)))
+                    (define-key company-active-map (kbd "C-d") #'my/company-show-doc-buffer)  
+                    ))
 
 ; ** Smartparens
 ; Show matching and unmatched delimiters and auto-close them as well.
@@ -543,6 +598,11 @@
                              (load-theme 'solarized-light)))
 (add-hook 'LaTeX-mode-hook (lambda()
                              (key-chord-define evil-insert-state-map  "hj" 'LaTeX-insert-item)))
+
+;; tramp
+(setq tramp-default-method "sshx")
+(setq explicit-shell-file-name "/bin/zsh")
+(push "/home/smutch/3rd_party/git/bin" tramp-remote-path)
 
 ;; finally select the theme (once everything has been loaded)
 (dark-theme)
