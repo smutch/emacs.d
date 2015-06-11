@@ -149,8 +149,8 @@
                "gl" 'magit-log
                "gd" 'magit-diff
                "ga" 'magit-stage-all
-               "ghn" 'git-gutter+-next-hunk
-               "ghp" 'git-gutter+-previous-hunk
+               "ghn" 'git-gutter-next-hunk
+               "ghp" 'git-gutter-previous-hunk
 
                "t"  'tags
                "tt" 'helm-etags-select
@@ -471,11 +471,11 @@
   (yas-global-mode 1))
 
 ;; Git gutter
-(use-package git-gutter-fringe+)
-(use-package git-gutter+
+;; (use-package git-gutter-fringe)
+(use-package git-gutter
   :config
   (progn
-    (global-git-gutter+-mode t)))
+    (global-git-gutter-mode t)))
 
 ;; Projectile
 (use-package projectile
@@ -624,7 +624,7 @@
               "mc" 'tex-compile-default
               "mp" 'tex-view
               "mi" 'preview-buffer)))
-(add-hook 'LaTeX-mode-hook (light-theme))
+;; (add-hook 'LaTeX-mode-hook 'light-theme)
 (add-hook 'LaTeX-mode-hook (lambda()
                              (key-chord-define evil-insert-state-map  "hj" 'LaTeX-insert-item)))
 
