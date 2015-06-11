@@ -20,6 +20,7 @@
 (depends-on "evil-surround")
 (depends-on "exec-path-from-shell")
 (depends-on "f")
+(depends-on "fill-column-indicator")
 (depends-on "flycheck")
 (depends-on "flyspell")
 (depends-on "git-gutter+")

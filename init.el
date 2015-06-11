@@ -67,13 +67,15 @@
 
 ; !! evil-mode !!
 (use-package evil
+  :demand
+  :ensure
   :init
   (progn
     (use-package evil-surround
       :config (global-evil-surround-mode 1))
 
     (use-package evil-nerd-commenter
-      :init (evilnc-default-hotkeys)
+      ;; :init (evilnc-default-hotkeys)
       :config
       (progn
         (define-key evil-normal-state-map ";" 'evilnc-comment-operator)
@@ -87,12 +89,12 @@
       :config (global-evil-extra-operator-mode 1))
 
     (use-package evil-snipe
-      :diminish ""
+      :diminish evil-snipe-mode
       :config (evil-snipe-mode 1))
 
     ;; guide-key
     (use-package guide-key
-      :diminish ""
+      :diminish guide-key-mode
       :config
       (progn (setq guide-key/guide-key-sequence '("C-x" "C-c" "SPC"))
              (setq guide-key/recursive-key-sequence-flag t))
@@ -106,7 +108,7 @@
              (evil-leader/set-leader "<SPC>")
              (define-prefix-command 'buffers)
              (define-prefix-command 'files)
-             (define-prefix-command 'projects)
+             ;; (define-prefix-command 'projects)
              (define-prefix-command 'help)
              (define-prefix-command 'git)
              (define-prefix-command 'tags)
@@ -124,13 +126,15 @@
                "fd" 'helm-open-dired
                "fo" 'helm-find-files
 
-               "p"  'projects
-               "pf" 'projectile-find-file
-               "pa" 'projectile-ag
-               "ps" 'projectile-switch-project
-               "pk" 'projectile-kill-buffers
-               "pr" 'projectile-replace
-               "pw" 'ag-project-at-point
+               ;; "p"  'projects
+               ;; "pf" 'helm-projectile-find-file
+               ;; "pa" 'helm-projectile-ag
+               ;; "ps" 'helm-projectile-switch-project
+               ;; "pk" 'helm-projectile-kill-buffers
+               ;; "pr" 'helm-projectile-recentf
+               ;; "pR" 'projectile-replace
+               ;; "pb" 'helm-projectile-switch-to-buffer
+               ;; "pw" 'ag-project-at-point
 
                "h"  'help
                "hf" 'describe-function
@@ -145,6 +149,8 @@
                "gl" 'magit-log
                "gd" 'magit-diff
                "ga" 'magit-stage-all
+               "ghn" 'git-gutter+-next-hunk
+               "ghp" 'git-gutter+-previous-hunk
 
                "t"  'tags
                "tt" 'helm-etags-select
@@ -152,11 +158,11 @@
                "s"  'settings
                "sf" 'menu-set-font
 
-               "e"  'errors
-               "el" 'flycheck-list-errors
-               "en" 'flycheck-next-error
-               "ep" 'flycheck-previous-error
-               "ef" 'flycheck-first-error
+               ;; "e"  'errors
+               ;; "el" 'flycheck-list-errors
+               ;; "en" 'flycheck-next-error
+               ;; "ep" 'flycheck-previous-error
+               ;; "ef" 'flycheck-first-error
 
                ":"  'helm-M-x
                ";"  'other-window)))
@@ -189,6 +195,10 @@
      (define-key keymap-from key nil))
    (my-move-key evil-motion-state-map evil-normal-state-map (kbd "RET"))
    (my-move-key evil-motion-state-map evil-normal-state-map " ")
+
+   ;; misc mappings in evil mode
+   (define-key evil-normal-state-map (kbd "Q") 'evil-delete-buffer)
+   (define-key evil-normal-state-map (kbd ",,") 'evil-buffer)
    ))
 
 ;; misc key bindings
@@ -464,14 +474,21 @@
 (use-package git-gutter-fringe+)
 (use-package git-gutter+
   :config
-  (global-git-gutter+-mode t))
+  (progn
+    (global-git-gutter+-mode t)))
 
 ;; Projectile
 (use-package projectile
+  :demand
+  :ensure
+  :init
   :config
-  (progn (projectile-global-mode)
-         (setq projectile-completion-system 'helm)
-         (helm-projectile-on)))
+  (progn
+    (evil-leader/set-key
+      "p" 'projectile-command-map)
+    (projectile-global-mode)
+    (setq projectile-completion-system 'helm)
+    (helm-projectile-on)))
 
 ;; Helm
 (use-package helm-config
@@ -481,21 +498,21 @@
 ; ** Company
 ; [[http://company-mode.github.io/][Company]] is a text completion framework for Emacs. It stands for "complete anything".
 (use-package company
-             :diminish ""
-             :config
-             (progn ()
-                    (global-company-mode '(not vhdl-mode))
-                    (defun my/company-show-doc-buffer ()
-                      "Temporarily show the documentation buffer for the selection."
-                      (interactive)
-                      (let* ((selected (nth company-selection company-candidates))
-                             (doc-buffer (or (company-call-backend 'doc-buffer selected)
-                                             (error "No documentation available"))))
-                        (with-current-buffer doc-buffer
-                          (goto-char (point-min)))
-                        (display-buffer doc-buffer t)))
-                    (define-key company-active-map (kbd "C-d") #'my/company-show-doc-buffer)  
-                    ))
+  :diminish ""
+  :config
+  (progn
+    (global-company-mode '(not vhdl-mode))
+    (defun my/company-show-doc-buffer ()
+      "Temporarily show the documentation buffer for the selection."
+      (interactive)
+      (let* ((selected (nth company-selection company-candidates))
+             (doc-buffer (or (company-call-backend 'doc-buffer selected)
+                             (error "No documentation available"))))
+        (with-current-buffer doc-buffer
+          (goto-char (point-min)))
+        (display-buffer doc-buffer t)))
+    (define-key company-active-map (kbd "C-d") #'my/company-show-doc-buffer)  
+    ))
 
 ; ** Smartparens
 ; Show matching and unmatched delimiters and auto-close them as well.
@@ -544,7 +561,9 @@
     ;; disable the annoying doc checker
     (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
   :config
-  (global-flycheck-mode 1))
+  (progn
+    (evil-leader/set-key "e" flycheck-command-map)
+    (global-flycheck-mode 1)))
 
 ; ** Markdown
 (use-package markdown-mode
@@ -605,11 +624,16 @@
               "mc" 'tex-compile-default
               "mp" 'tex-view
               "mi" 'preview-buffer)))
-(add-hook 'LaTeX-mode-hook (lambda ()
-                             (disable-theme 'monokai)
-                             (load-theme 'solarized-light)))
+(add-hook 'LaTeX-mode-hook (light-theme))
 (add-hook 'LaTeX-mode-hook (lambda()
                              (key-chord-define evil-insert-state-map  "hj" 'LaTeX-insert-item)))
+
+;; fill column indicator
+(add-hook 'LaTeX-mode-hook 'fci-mode)
+(use-package fill-column-indicator
+  :commands 'fci-mode
+  :config
+  (setq fci-rule-width 2))
 
 ;; tramp
 (setq tramp-default-method "sshx")
