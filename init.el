@@ -31,7 +31,19 @@
   )
 
 ;; default font
-(set-frame-font "-*-Source Code Pro-normal-normal-normal-*-13-*-*-*-m-0-iso10646-1")
+(set-frame-font "-*-Source Code Pro-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1")
+
+;; scale font
+(defun my/change-frame-font (way)
+  (if way
+      ;; up
+      (set-face-attribute 'default (selected-frame) :height (+ (face-attribute 'default :height) 10 ))
+    ;; down
+    (set-face-attribute 'default (selected-frame) :height (- (face-attribute 'default :height) 10 ))
+    )
+  )
+(bind-key (kbd "C-+") (lambda () (interactive)(my/change-frame-font t)))
+(bind-key (kbd "C--") (lambda () (interactive)(my/change-frame-font nil)))
 
 ;; dark theme
 (load-theme 'monokai t t)
